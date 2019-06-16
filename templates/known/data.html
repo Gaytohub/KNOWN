@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Known{% endblock %}
+
+{% block home %}active{% endblock %}
+
+{% block content %}
+    {% load cache %}
+
+    <div class="container" xmlns="http://www.w3.org/1999/html">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="alert alert-info alert-dismissable">
+                        <button class="close" type="button"
+                                data-dismiss="alert">&times;
+                        </button>
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="header-box">
+                    <div class="container">
+                        <div>
+                            <br>
+                             <form action="{% url 'upload'%}" enctype="multipart/form-data" method="post">
+                                  {% csrf_token %}
+                                 <input type="file" name="filename" value="" style="display:inline;" align="center"><input type="submit" value="上传" style="display:inline;">
+                             </form>
+                            <!-- <li><a href="">写文章</a></li>
+                            <li><a href="">写想法</a></li> -->
+                            <br>
+                        </div>
+                    </div>
+                </div>
+                    {% for file in files %}
+                        <li><a href="{% url 'download' file %}">{{ file }}</a></li>
+                        </br>
+                    {% endfor %}
+                </ul>
+
+                {% include 'known/paginator.html' %}
+
+            </div>
+
+            <div class="col-sm-4">
+
+                {% if request.user.is_authenticated %}
+                    <div class="site-box">
+                        {% if request.user.is_authenticated and request.user.confirmed == False %}
+                            <p>你的账户还没确认, 请前往邮箱确认.</p>
+                            <p>没收到确认邮件, 点击 <a class="send-email"
+                                              href="{% url 'resend_confirm_email' %}">重新发送</a>
+                            </p>
+                        {% endif %}
+                        <div class="media">
+                            <a target="_blank"
+                               href="{% url 'user_home' request.user.id %}"
+                               class="media-left">
+                                <img width="60" height="60"
+                                     src="
+
+
+                                             {{ MEDIA_URL }}{{ request.user.image }}"
+                                     alt="头像" class="media-object">
+                            </a>
+                            <div class="media-body">
+                                <h4 class="media-heading"><a target="_blank"
+                                                             href="{% url 'user_home' request.user.id %}">
+                                    {{request.user.nickname }}</a></h4>
+                                <p>{{ request.user.description|default_if_none:'' }}</p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="">
+                            <ul class="nav nav-stacked">
+                                <li><a target="_blank"
+                                       href="{% url 'user_collect_answer' request.user.id %}"><span
+                                        class="badge pull-right">{{ request.user.get_collect_answer_nums }}</span><b>我的收藏</b></a>
+                                </li>
+                                <li><a target="_blank"
+                                       href="{% url 'user_follow_question' request.user.id %}"><span
+                                        class="badge pull-right">{{ request.user.get_follow_question_nums }}</span><b>我关注的问题</b></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="site-box right-block">
+                        <h4>加入Known</h4>
+                        <p>
+                            <a target="_blank" href="{% url 'register' %}">
+                                <button class="btn btn-primary btn-lg btn-block">
+                                    注册
+                                </button>
+                            </a>
+                            <a target="_blank" href="{% url 'user_login' %}">
+                                <button class="btn btn-default btn-lg btn-block">
+                                    登录
+                                </button>
+                            </a>
+                        </p>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
