@@ -271,41 +271,6 @@ def topic_detail(request, topic_id):
             comment_nums=Count('answercomment', distinct=True))
         cache.set('topic_answers' + str(topic_id), topic_answers, 5 * 60)
 
-    '''
-    # 话题下回答问题的最活跃回答者, 按用户的回答数排序
-    # 用distinct去除重复的user_id, 但mysql数据库不支持, 使用set类型集合去除重复的user_id
-    # 该话题下, 有回答的用户ID列表
-    user_ids = cache.get('user_ids'+'_topic_'+str(topic_id))
-    if not user_ids:
-        user_ids = set()
-        for answer in topic_answers:
-            user_ids.add(answer.author_id)
-        cache.set('user_ids'+'_topic_'+str(topic_id), user_ids, 5*60)
-
-    most_active_users = cache.get('most_active_users'+str(topic_id))
-    if not most_active_users:
-        # 所有用户在话题下的回答数列表
-        user_answer_nums_list = []
-        for user_id  in user_ids:
-            user_answer_nums = topic_answers.filter(author_id=user_id).count()
-            user_answer_nums_list.append({'user_id':user_id, 'user_answer_nums':user_answer_nums})
-
-        # 依据回答数排序, 排序函数sorted的key参数
-        def get_nums(obj):
-            return obj['user_answer_nums']
-        
-        user_answer_nums_list_sorted = sorted(user_answer_nums_list, key=get_nums, reverse=True)
-        # 最活跃用户取前3
-        most_active_users = []
-        for obj in user_answer_nums_list_sorted[:3]:
-            user = User.objects.get(id=obj['user_id'])
-            # 用户话题回答数
-            user.topic_answer_nums = obj['user_answer_nums']
-            # 用户话题下回答赞同数
-            user.topic_answer_follow_nums = UserFollowAnswer.objects.filter(answer__author=user, answer__in=topic_answers).count()
-            most_active_users.append(user)
-        cache.set('most_active_users'+str(topic_id), most_active_users, 10*60)
-    '''
 
     user_answer_nums_list_sorted = cache.get(
         'user_answer_nums_list_sorted' + str(topic_id))
